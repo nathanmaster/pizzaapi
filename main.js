@@ -2,33 +2,23 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-const pizzas = {
-  'Margherita': { toppings: ['tomato sauce', 'mozzarella cheese'] },
-  'Pepperoni': { toppings: ['tomato sauce', 'mozzarella cheese', 'pepperoni'] },
-  'Hawaiian': { toppings: ['tomato sauce', 'mozzarella cheese', 'ham', 'pineapple'] },
-  // Add more pizza types and toppings here
-};
+app.use(express.json());
 
-function getRndPizza() {
-  const names = Object.keys(pizzas);
-  const index = Math.floor(Math.random() * names.length);
-  const pizza = names[index];
-  return {
-    name: pizza,
-    toppings: pizzas[pizza].toppings.slice()
-  };
-}
+app.post('/order-pizza', (req, res) => {
+  const { type, toppings } = req.body;
 
-app.get(['/', '/echo-pizza'], (req, res) => {
-  const pizza = getRndPizza();
-  const toppings = pizza.toppings.join(', ');
-  const jsonPizza = pizza;
-
-  if (req.accepts('json')) {
-    res.json(jsonPizza);
-  } else {
-    res.send(`Pizza: ${pizza.name}, Toppings: ${toppings}`);
+  if (!type) {
+    return res.status(400).send('Pizza type is required');
   }
+
+  let responseMessage = `Thank you for ordering a ${type} pizza`;
+
+  if (toppings && toppings.length > 0) {
+    const toppingsList = toppings.join(', ');
+    responseMessage += ` with ${toppingsList}`;
+  }
+
+  res.send(responseMessage);
 });
 
 app.listen(port, () => {
